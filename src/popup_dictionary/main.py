@@ -29,6 +29,11 @@
 #
 # Any modifications to this file must keep this entire header intact.
 
+
+
+# This file has been modified by lovac42 for CCBC, and is not the same as the original.
+
+
 """
 Initializes add-on components.
 """
@@ -50,6 +55,11 @@ from .consts import *
 from .config import CONFIG
 from .template import addModel
 
+from .lib.porter2stemmer import Porter2Stemmer
+
+
+
+
 # support for JS Booster add-on
 try:
     from jsbooster import review_hack
@@ -68,7 +78,7 @@ WRN_RESCOUNT = ("<b>{}</b> relevant notes found.<br>"
 
 # HTML format strings for results
 
-pycmd = "pycmd" if anki21 else "py.link"
+pycmd = "py.link"
 
 html_reslist = """<div class="tt-reslist">{}</div>"""
 
@@ -92,6 +102,8 @@ cloze_re_str = r"\{\{c(\d+)::(.*?)(::(.*?))?\}\}"
 cloze_re = re.compile(cloze_re_str)
 
 
+stemmer = Porter2Stemmer()
+
 # Anki 2.0: Python <-> JS bridge object
 
 class DictionaryLookup(QObject):
@@ -110,13 +122,18 @@ class DictionaryLookup(QObject):
     @pyqtSlot(str, str, result=str)
     def definitionFor(self, term, ignore_nid):
         term = term.strip()
-        return getContentFor(term, ignore_nid)
+        note_content = getContentFor(term, ignore_nid)
+        if note_content is None:
+            term = stemmer.stem(term)
+            note_content = getContentFor(term, ignore_nid)
+            if note_content is None:
+                return "No other results found." if CONFIG["generalConfirmEmpty"] else ""
+        return note_content
 
 
-if not anki21:
-    # DictionaryLookup instance that gets added as a JS object
-    dictLookup = DictionaryLookup()
 
+# DictionaryLookup instance that gets added as a JS object
+dictLookup = DictionaryLookup()
 
 def addJavascriptObjects(self):
     """Add python object to JS"""
@@ -149,7 +166,7 @@ def getContentFor(term, ignore_nid):
     elif note_content is False:
         return ""
     elif note_content is None:
-        return "No other results found." if CONFIG["generalConfirmEmpty"] else ""
+        return None
 
 
 def getNoteSnippetsFor(term, ignore_nid):
@@ -231,11 +248,14 @@ def linkHandler(self, url, _old):
         if not arg:
             return
         browseToNid(arg)
-    elif anki21 and url.startswith("dctLookup"):
-        (cmd, payload) = url.split(":", 1)
-        term, ignore_nid = json.loads(payload)
-        term = term.strip()
-        return getContentFor(term, ignore_nid)
+    # elif anki21 and url.startswith("dctLookup"):
+        #
+        ## I have no idea what this is suppose to do...
+        #
+        # (cmd, payload) = url.split(":", 1)
+        # term, ignore_nid = json.loads(payload)
+        # term = term.strip()
+        # return getContentFor(term, ignore_nid)
     else:
         return _old(self, url)
 
@@ -244,10 +264,10 @@ def browseToNid(nid):
     """Open browser and find cards by nid"""
     browser = aqt.dialogs.open("Browser", mw)
     browser.form.searchEdit.lineEdit().setText("nid:'{}'".format(nid))
-    if anki21:
-        browser.onSearchActivated()
-    else:
-        browser.onSearch()
+    # if anki21:
+        # browser.onSearchActivated()
+    # else:
+    browser.onSearch()
 
 
 def onRevHtml21(self, _old):
@@ -258,12 +278,12 @@ def setupAddon():
     """Setup hooks, prepare note type and deck"""
     # JS Booster support:
     if not JSBOOSTER:
-        if anki21:
-            Reviewer.revHtml = wrap(Reviewer.revHtml, onRevHtml21, "around")
-        else:
-            Reviewer._revHtml += html
-            Reviewer._initWeb = wrap(
-                Reviewer._initWeb, addJavascriptObjects, "after")
+        # if anki21:
+            # Reviewer.revHtml = wrap(Reviewer.revHtml, onRevHtml21, "around")
+        # else:
+        Reviewer._revHtml += html
+        Reviewer._initWeb = wrap(
+            Reviewer._initWeb, addJavascriptObjects, "after")
     else:
         review_hack.review_html_scripts += html
         Reviewer._showQuestion = wrap(

@@ -34,3 +34,5 @@ Module-level entry point for the add-on into Anki 2.0/2.1
 """
 
 from . import main  # noqa: F401
+
+# This file has been modified by lovac42 for CCBC, and is not the same as the original.

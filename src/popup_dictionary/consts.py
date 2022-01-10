@@ -29,6 +29,11 @@
 #
 # Any modifications to this file must keep this entire header intact.
 
+
+
+# This file has been modified by lovac42 for CCBC, and is not the same as the original.
+
+
 """
 Addon-wide constants
 """
@@ -38,12 +43,8 @@ import os
 from anki import version
 from ._version import __version__
 
-anki21 = version.startswith("2.1.")
-sys_encoding = sys.getfilesystemencoding()
+anki21 = True
 
-if anki21:
-    addon_path = os.path.dirname(__file__)
-else:
-    addon_path = os.path.dirname(__file__).decode(sys_encoding)
+addon_path = os.path.dirname(__file__)
 
 ADDON_VERSION = __version__

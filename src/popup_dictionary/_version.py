@@ -33,4 +33,8 @@
 Version information
 """
 
-__version__ = "0.5.0-beta.1"
+__version__ = "0.5.1-beta.1.mod"
+
+# This file has been modified by lovac42 for CCBC, and is not the same as the original.
+
+

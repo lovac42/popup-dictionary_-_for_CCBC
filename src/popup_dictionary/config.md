@@ -1,5 +1,11 @@
 ### Popup Dictionary Configuration
 
+You are using a modified version of Popup Dictionary ported to CCBC. Please do not contact the original authors if any problem occurs. No support is given for this port.
+
+Below is the original message.
+
+<hr>
+
 *If Popup Dictionary has been a valuable asset in your studies, please consider  supporting my efforts by [buying me a coffee](https://ko-fi.com/X8X0L4YV), or by [pledging your support on Patreon](https://www.patreon.com/glutanimate). Each and every contribution is greatly appreciated and will help me maintain and improve Popup Dictionary as time goes by!*
 
 Please note that the following settings do not sync and require a restart to apply:
